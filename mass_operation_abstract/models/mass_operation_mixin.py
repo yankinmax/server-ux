@@ -32,6 +32,7 @@ class MassOperationMixin(models.AbstractModel):
 
     model_id = fields.Many2one(
         comodel_name='ir.model', string='Model', required=True,
+        ondelete="cascade",
         domain=lambda s: s._get_model_domain())
 
     ref_ir_act_window_id = fields.Many2one(
