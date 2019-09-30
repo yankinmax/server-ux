@@ -73,6 +73,13 @@ class MassOperationMixin(models.AbstractModel):
         default.update({'name': _('%s (copy)') % self.name})
         return super().copy(default=default)
 
+    # @api.returns('self', lambda value: value.id)
+    # def copy(self, default=None):
+    #     if default is None:
+    #         default = {}
+    #     default.update({'name': _("%s (copy)" % self.name), 'field_ids': []})
+    #     return super(MassObject, self).copy(default)
+
     # Private Section
     def _prepare_action(self):
         self.ensure_one()
