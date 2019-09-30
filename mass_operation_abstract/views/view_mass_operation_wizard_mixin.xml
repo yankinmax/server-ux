@@ -12,30 +12,41 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="arch" type="xml">
             <form>
                 <header/>
-                    <group name="custom_info">
-                    </group>
-                  <footer>
-                      <button string="Apply" name="button_apply" type="object" class="oe_highlight"/>
-                      <button string="Cancel" class="oe_link" special="cancel"/>
-                  </footer>
+                <p class="oe_grey" attrs="{'invisible': 
+                    [('message', '=', False)]}">
+                    <field name="message"/>
+
+                </p>
+                <p class="alert alert-info" role="alert" attrs="{'invisible': 
+                    [('operation_description_info', '=', False)]}">
+                    <field name="operation_description_info"/>
+                </p>
+
+                <p class="alert alert-warning" role="alert" attrs="{'invisible': 
+                    [('operation_description_warning', '=', False)]}">
+                    <field name="operation_description_warning"/>
+                </p>
+
+                <p class="alert alert-danger" role="alert" attrs="{'invisible': [('operation_description_danger', '=', False)]}">
+                    <field name="operation_description_danger"/>
+                </p>
+
+                <group name="custom_info">
+                </group>
+                <footer>
+                    <button string="Apply" name="button_apply" type="object" class="oe_highlight"/>
+                    <button string="Cancel" class="oe_link" special="cancel"/>
+                </footer>
             </form>
         </field>
     </record>
 
 </odoo>
 
-<!-- attrs="{'invisible': [('remaining_item_qty', '=', 0)]}" -->
 
-<!--                     <p class="alert alert-danger" attrs="{'invisible': [('remaining_item_qty', '!=', 0)]}">
-                        None of the items you have selected can be processed.
-                    </p>
-                    <p class="alert alert-warning" attrs="{'invisible': ['|', ('remaining_item_qty', '=', 0), ('removed_item_qty', '=', 0)]}">
-                        You have selected <b><field name="removed_item_qty" nolabel="1" class="oe_inline"/></b> items
-                        that can not be processed.<br/>
-                        Only <b><field name="remaining_item_qty" nolabel="1" class="oe_inline"/></b> items will be processed.
-                    </p>
-                    <p class="alert alert-info" attrs="{'invisible': ['|', ('selected_item_qty', '=', 1), ('removed_item_qty', '!=', 0)]}">
-                        The treatment will be processed on the <b><field name="selected_item_qty" nolabel="1" class="oe_inline"/></b>
-                        selected elements.</p>
-                    <p class="alert alert-info" attrs="{'invisible': ['|', ('selected_item_qty', '!=', 1), ('removed_item_qty', '!=', 0)]}">
-                        The treatment will be processed on the selected element.</p> -->
+<!--                 
+
+
+
+
+ -->

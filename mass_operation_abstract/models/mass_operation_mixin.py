@@ -26,6 +26,10 @@ class MassOperationMixin(models.AbstractModel):
     action_name = fields.Char(
         string='Action Name', required=True)
 
+    message = fields.Text(
+        string='message', help="If set, this message will be displayed in the"
+        " wizard.")
+
     model_id = fields.Many2one(
         comodel_name='ir.model', string='Model', required=True,
         domain=lambda s: s._get_model_domain())
@@ -33,10 +37,6 @@ class MassOperationMixin(models.AbstractModel):
     ref_ir_act_window_id = fields.Many2one(
         comodel_name='ir.actions.act_window', string='Sidebar Action',
         readonly=True, copy=False)
-
-    # value_id = fields.Many2one(
-    #     comodel_name='ir.values', string='Sidebar Button', readonly=True,
-    #     copy=False)
 
     groups_id = fields.Many2one(
         comodel_name='res.groups', string='Allowed Groups')
@@ -79,14 +79,13 @@ class MassOperationMixin(models.AbstractModel):
             'name': self.action_name,
             'type': 'ir.actions.act_window',
             'res_model': self._wizard_model_name,
-            'src_model': self.model_id.model,
             'groups_id': [(6, 0, self.groups_id.ids)],
-            'view_type': 'form',
             'context': """{
                 'mass_operation_mixin_id' : %d,
                 'mass_operation_mixin_name' : '%s',
             }""" % (self.id, self._name),
             'view_mode': 'form',
             'target': 'new',
-            'multi': True,
+            'binding_model_id': self.model_id.id,
+            'binding_type': 'action',
         }

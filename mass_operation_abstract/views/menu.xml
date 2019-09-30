@@ -9,6 +9,8 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
     <menuitem id="menu_mass_operation"
         name="Mass Operations"
-        parent="base.menu_custom" sequence="11"/>
+        parent="base.menu_administration" sequence="11"/>
+
+<!-- base.menu_custom -->
 
 </odoo>
