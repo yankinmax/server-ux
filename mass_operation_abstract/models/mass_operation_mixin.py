@@ -30,7 +30,7 @@ class MassOperationMixin(models.AbstractModel):
         comodel_name='ir.model', string='Model', required=True,
         domain=lambda s: s._get_model_domain())
 
-    action_id = fields.Many2one(
+    ref_ir_act_window_id = fields.Many2one(
         comodel_name='ir.actions.act_window', string='Sidebar Action',
         readonly=True, copy=False)
 
@@ -52,29 +52,25 @@ class MassOperationMixin(models.AbstractModel):
     # Action Section
     def enable_mass_operation(self):
         action_obj = self.env['ir.actions.act_window']
-        values_obj = self.env['ir.values']
         for mixin in self:
-            if not mixin.action_id:
-                mixin.action_id = action_obj.create(mixin._prepare_action())
-            if not mixin.value_id:
-                mixin.value_id = values_obj.create(mixin._prepare_value())
+            if not mixin.ref_ir_act_window_id:
+                mixin.ref_ir_act_window_id =\
+                    action_obj.create(mixin._prepare_action())
+            # if not mixin.value_id:
+            #     mixin.value_id = values_obj.create(mixin._prepare_value())
 
     def disable_mass_operation(self):
-        for mixin in self:
-            if mixin.action_id:
-                mixin.action_id.unlink()
-            if mixin.value_id:
-                mixin.value_id.unlink()
+        self.mapped('ref_ir_act_window_id').unlink()
 
     # Overload Section
     def unlink(self):
         self.disable_mass_operation()
-        return super(MassOperationMixin, self).unlink()
+        return super().unlink()
 
     def copy(self, default=None):
         default = default or {}
         default.update({'name': _('%s (copy)') % self.name})
-        return super(MassOperationMixin, self).copy(default=default)
+        return super().copy(default=default)
 
     # Private Section
     def _prepare_action(self):
@@ -90,15 +86,7 @@ class MassOperationMixin(models.AbstractModel):
                 'mass_operation_mixin_id' : %d,
                 'mass_operation_mixin_name' : '%s',
             }""" % (self.id, self._name),
-            'view_mode': 'form,tree',
+            'view_mode': 'form',
             'target': 'new',
-        }
-
-    def _prepare_value(self):
-        self.ensure_one()
-        return {
-            'name': self.action_name,
-            'model': self.model_id.model,
-            'key2': 'client_action_multi',
-            'value': ("ir.actions.act_window,%s" % self.action_id.id),
+            'multi': True,
         }
