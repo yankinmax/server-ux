@@ -1,12 +1,11 @@
-# coding: utf-8
 # Copyright (C) 2018 - Today: GRAP (http://www.grap.coop)
 # @author: Sylvain LE GAL (https://twitter.com/legalsylvain)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from openerp import _, api, fields, models
-from openerp.exceptions import Warning as UserError
-from openerp.osv import expression
-from openerp.tools.safe_eval import safe_eval
+from odoo import _, api, fields, models
+from odoo.exceptions import Warning as UserError
+from odoo.osv import expression
+from odoo.tools.safe_eval import safe_eval
 
 
 class MassOperationWizardMixin(models.AbstractModel):
