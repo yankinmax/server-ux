@@ -12,9 +12,35 @@ class MassEditingWizard(models.TransientModel):
     _inherit = 'mass.operation.wizard.mixin'
     _description = "Wizard for mass edition"
 
-    # @api.model
-    # def _prepare_fields(field):
-    #     return 
+    @api.model
+    def _prepare_fields(self, field, field_info):
+        result = {}
+
+        # Add "selection field (set / add / remove / remove_m2m)
+        if field.ttype == "many2many":
+            selection = [
+                ('set', 'Set'),
+                ('remove_m2m', 'Remove'),
+                ('add', 'Add'),
+            ]
+        else:
+            selection = [
+                ('set', 'Set'),
+                ('remove', 'Remove'),
+            ]
+        result["selection__" + field.name] = {
+            'type': 'selection',
+            'string': field_info['string'],
+            'selection': selection,
+        }
+
+        # Add field info
+        result[field.name] = field_info
+
+        # Patch fields with required extra data
+        for item in result.values():
+            item.setdefault("views", {})
+        return result
 
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False,
@@ -28,31 +54,26 @@ class MassEditingWizard(models.TransientModel):
 
         all_fields = {}
         xml_form = etree.Element('form', {
-            'string': tools.ustr(mass_editing.name)
+            'string': tools.ustr(mass_editing.action_name)
         })
         xml_group = etree.SubElement(xml_form, 'group', {
             'colspan': '6',
             'col': '6',
         })
-        # TODO, FIXME
-        model_obj = self.env[mass_editing.model_id.model]
-        field_info = model_obj.fields_get()
+        TargetModel = self.env[mass_editing.model_id.model]
+        fields_info = TargetModel.fields_get()
+
         for field in mass_editing.field_ids:
+            field_info = fields_info[field.name]
+            all_fields.update(self._prepare_fields(field, field_info))
+
             if field.ttype == "many2many":
-                all_fields[field.name] = field_info[field.name]
-                all_fields["selection__" + field.name] = {
-                    'type': 'selection',
-                    'string': field_info[field.name]['string'],
-                    'selection': [('set', 'Set'),
-                                  ('remove_m2m', 'Remove'),
-                                  ('add', 'Add')]
-                }
                 xml_group = etree.SubElement(xml_group, 'group', {
                     'colspan': '6',
                     'col': '6',
                 })
                 etree.SubElement(xml_group, 'separator', {
-                    'string': field_info[field.name]['string'],
+                    'string': field_info['string'],
                     'colspan': '6',
                 })
                 etree.SubElement(xml_group, 'field', {
@@ -68,16 +89,6 @@ class MassEditingWizard(models.TransientModel):
                               field.name + "', '=', 'remove_m2m')]}"),
                 })
             elif field.ttype == "one2many":
-                all_fields["selection__" + field.name] = {
-                    'type': 'selection',
-                    'string': field_info[field.name]['string'],
-                    'selection': [('set', 'Set'), ('remove', 'Remove')],
-                }
-                all_fields[field.name] = {
-                    'type': field.ttype,
-                    'string': field.field_description,
-                    'relation': field.relation,
-                }
                 etree.SubElement(xml_group, 'field', {
                     'name': "selection__" + field.name,
                     'colspan': '4',
@@ -90,16 +101,6 @@ class MassEditingWizard(models.TransientModel):
                               field.name + "', '=', 'remove_o2m')]}"),
                 })
             elif field.ttype == "many2one":
-                all_fields["selection__" + field.name] = {
-                    'type': 'selection',
-                    'string': field_info[field.name]['string'],
-                    'selection': [('set', 'Set'), ('remove', 'Remove')],
-                }
-                all_fields[field.name] = {
-                    'type': field.ttype,
-                    'string': field.field_description,
-                    'relation': field.relation,
-                }
                 etree.SubElement(xml_group, 'field', {
                     'name': "selection__" + field.name,
                     'colspan': '2',
@@ -112,16 +113,6 @@ class MassEditingWizard(models.TransientModel):
                               field.name + "', '=', 'remove')]}"),
                 })
             elif field.ttype == "char":
-                all_fields["selection__" + field.name] = {
-                    'type': 'selection',
-                    'string': field_info[field.name]['string'],
-                    'selection': [('set', 'Set'), ('remove', 'Remove')],
-                }
-                all_fields[field.name] = {
-                    'type': field.ttype,
-                    'string': field.field_description,
-                    'size': field.size or 256,
-                }
                 etree.SubElement(xml_group, 'field', {
                     'name': "selection__" + field.name,
                     'colspan': '2',
@@ -134,11 +125,6 @@ class MassEditingWizard(models.TransientModel):
                     'colspan': '4',
                 })
             elif field.ttype == 'selection':
-                all_fields["selection__" + field.name] = {
-                    'type': 'selection',
-                    'string': field_info[field.name]['string'],
-                    'selection': [('set', 'Set'), ('remove', 'Remove')]
-                }
                 etree.SubElement(xml_group, 'field', {
                     'name': "selection__" + field.name,
                     'colspan': '2',
@@ -150,62 +136,40 @@ class MassEditingWizard(models.TransientModel):
                     'attrs': ("{'invisible':[('selection__" +
                               field.name + "', '=', 'remove')]}"),
                 })
-                all_fields[field.name] = {
-                    'type': field.ttype,
-                    'string': field.field_description,
-                    'selection': field_info[field.name]['selection'],
-                }
+            elif field.ttype == 'text':
+                xml_group = etree.SubElement(xml_group, 'group', {
+                    'colspan': '6',
+                    'col': '6',
+                })
+                etree.SubElement(xml_group, 'separator', {
+                    'string': all_fields[field.name]['string'],
+                    'colspan': '6',
+                })
+                etree.SubElement(xml_group, 'field', {
+                    'name': "selection__" + field.name,
+                    'colspan': '6',
+                    'nolabel': '1',
+                })
+                etree.SubElement(xml_group, 'field', {
+                    'name': field.name,
+                    'colspan': '6',
+                    'nolabel': '1',
+                    'attrs': ("{'invisible':[('selection__" +
+                              field.name + "','=','remove')]}"),
+                })
             else:
-                all_fields[field.name] = {
-                    'type': field.ttype,
-                    'string': field.field_description,
-                }
-                all_fields["selection__" + field.name] = {
-                    'type': 'selection',
-                    'string': field_info[field.name]['string'],
-                    'selection': [('set', 'Set'), ('remove', 'Remove')]
-                }
-                if field.ttype == 'text':
-                    xml_group = etree.SubElement(xml_group, 'group', {
-                        'colspan': '6',
-                        'col': '6',
-                    })
-                    etree.SubElement(xml_group, 'separator', {
-                        'string': all_fields[field.name]['string'],
-                        'colspan': '6',
-                    })
-                    etree.SubElement(xml_group, 'field', {
-                        'name': "selection__" + field.name,
-                        'colspan': '6',
-                        'nolabel': '1',
-                    })
-                    etree.SubElement(xml_group, 'field', {
-                        'name': field.name,
-                        'colspan': '6',
-                        'nolabel': '1',
-                        'attrs': ("{'invisible':[('selection__" +
-                                  field.name + "','=','remove')]}"),
-                    })
-                else:
-                    all_fields["selection__" + field.name] = {
-                        'type': 'selection',
-                        'string': field_info[field.name]['string'],
-                        'selection': [('set', 'Set'), ('remove', 'Remove')]
-                    }
-                    etree.SubElement(xml_group, 'field', {
-                        'name': "selection__" + field.name,
-                        'colspan': '2',
-                    })
-                    etree.SubElement(xml_group, 'field', {
-                        'name': field.name,
-                        'nolabel': '1',
-                        'attrs': ("{'invisible':[('selection__" +
-                                  field.name + "','=','remove')]}"),
-                        'colspan': '4',
-                    })
-        # Patch fields with required extra data
-        for field in all_fields.values():
-            field.setdefault("views", {})
+                etree.SubElement(xml_group, 'field', {
+                    'name': "selection__" + field.name,
+                    'colspan': '2',
+                })
+                etree.SubElement(xml_group, 'field', {
+                    'name': field.name,
+                    'nolabel': '1',
+                    'attrs': ("{'invisible':[('selection__" +
+                              field.name + "','=','remove')]}"),
+                    'colspan': '4',
+                })
+
         etree.SubElement(xml_form, 'separator', {
             'string': '',
             'colspan': '6',
