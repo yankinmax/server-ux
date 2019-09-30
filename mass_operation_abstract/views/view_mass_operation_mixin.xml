@@ -36,10 +36,12 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
             <form>
                 <header>
                     <button name="enable_mass_operation" type="object"
+                        icon="fa-plus"
                         class="btn btn-primary" string="Add sidebar button"
                         attrs="{'invisible':[('ref_ir_act_window_id', '!=', False)]}"
                         help="Display a button in the sidebar of related model to open a wizard"/>
                     <button name="disable_mass_operation" type="object"
+                        icon="fa-minus"
                         class="btn btn-default" string="Remove sidebar button"
                         attrs="{'invisible':[('ref_ir_act_window_id', '=', False)]}"/>
                 </header>
