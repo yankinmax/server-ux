@@ -10,9 +10,9 @@ from odoo.tools.safe_eval import safe_eval
 
 class MassOperationWizardMixin(models.AbstractModel):
     _name = 'mass.operation.wizard.mixin'
+    _description = "Abstract Mass Operations Wizard"
 
     # To Overwrite Section
-    @api.multi
     def _apply_operation(self, items):
         pass
 
@@ -38,7 +38,6 @@ class MassOperationWizardMixin(models.AbstractModel):
         })
         return res
 
-    @api.multi
     def button_apply(self):
         items = self._get_remaining_items()
         if not len(items):

@@ -7,7 +7,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 <odoo>
 
-    <record id="view_mass_operation_wizard_mixin_form" model="ir.ui.view">
+<!--     <record id="view_mass_operation_wizard_mixin_form" model="ir.ui.view">
         <field name="model">mass.operation.wizard.mixin</field>
         <field name="arch" type="xml">
             <form>
@@ -26,7 +26,6 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
                     <p class="alert alert-info" attrs="{'invisible': ['|', ('selected_item_qty', '!=', 1), ('removed_item_qty', '!=', 0)]}">
                         The treatment will be processed on the selected element.</p>
                     <group name="custom_info">
-                        <!-- include here custom fields in inherited modules -->
                     </group>
                   <footer>
                       <button string="Apply" name="button_apply" type="object" class="oe_highlight" attrs="{'invisible': [('remaining_item_qty', '=', 0)]}"/>
@@ -35,5 +34,5 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
             </form>
         </field>
     </record>
-
+ -->
 </odoo>

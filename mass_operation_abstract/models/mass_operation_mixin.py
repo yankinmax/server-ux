@@ -8,16 +8,15 @@ from odoo import _, api, fields, models
 
 class MassOperationMixin(models.AbstractModel):
     _name = 'mass.operation.mixin'
+    _description = "Abstract Mass Operations"
 
     # To Overwrite Section (Mandatory)
     _wizard_model_name = False
 
     # To Overwrite Section (Optional)
-    @api.multi
     def _prepare_action_name(self):
         return _("Mass Operation (%s)" % (self.name))
 
-    @api.multi
     def _get_model_domain(self):
         return [('osv_memory', '=', False)]
 
@@ -35,9 +34,9 @@ class MassOperationMixin(models.AbstractModel):
         comodel_name='ir.actions.act_window', string='Sidebar Action',
         readonly=True, copy=False)
 
-    value_id = fields.Many2one(
-        comodel_name='ir.values', string='Sidebar Button', readonly=True,
-        copy=False)
+    # value_id = fields.Many2one(
+    #     comodel_name='ir.values', string='Sidebar Button', readonly=True,
+    #     copy=False)
 
     groups_id = fields.Many2one(
         comodel_name='res.groups', string='Allowed Groups')
@@ -51,7 +50,6 @@ class MassOperationMixin(models.AbstractModel):
             self.action_name = self._prepare_action_name()
 
     # Action Section
-    @api.multi
     def enable_mass_operation(self):
         action_obj = self.env['ir.actions.act_window']
         values_obj = self.env['ir.values']
@@ -61,7 +59,6 @@ class MassOperationMixin(models.AbstractModel):
             if not mixin.value_id:
                 mixin.value_id = values_obj.create(mixin._prepare_value())
 
-    @api.multi
     def disable_mass_operation(self):
         for mixin in self:
             if mixin.action_id:
@@ -70,19 +67,16 @@ class MassOperationMixin(models.AbstractModel):
                 mixin.value_id.unlink()
 
     # Overload Section
-    @api.multi
     def unlink(self):
         self.disable_mass_operation()
         return super(MassOperationMixin, self).unlink()
 
-    @api.multi
     def copy(self, default=None):
         default = default or {}
         default.update({'name': _('%s (copy)') % self.name})
         return super(MassOperationMixin, self).copy(default=default)
 
     # Private Section
-    @api.multi
     def _prepare_action(self):
         self.ensure_one()
         return {
@@ -100,7 +94,6 @@ class MassOperationMixin(models.AbstractModel):
             'target': 'new',
         }
 
-    @api.multi
     def _prepare_value(self):
         self.ensure_one()
         return {
