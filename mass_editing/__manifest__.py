@@ -12,7 +12,7 @@
     'license': 'AGPL-3',
     'summary': 'Mass Editing',
     'uninstall_hook': 'uninstall_hook',
-    'depends': ['base'],
+    'depends': ['mass_operation_abstract'],
     'data': [
         'security/ir.model.access.csv',
         'views/mass_editing_view.xml',

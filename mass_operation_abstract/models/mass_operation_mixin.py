@@ -18,7 +18,7 @@ class MassOperationMixin(models.AbstractModel):
         return _("Mass Operation (%s)" % (self.name))
 
     def _get_model_domain(self):
-        return [('osv_memory', '=', False)]
+        return [('transient', '=', False)]
 
     # Column Section
     name = fields.Char(string='Name', required=True)
