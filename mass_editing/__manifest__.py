@@ -16,5 +16,9 @@
     'data': [
         'security/ir.model.access.csv',
         'views/mass_editing_view.xml',
+        'wizard/view_mass_editing_wizard.xml',
+    ],
+    'demo': [
+        'demo/mass_editing.xml',
     ],
 }

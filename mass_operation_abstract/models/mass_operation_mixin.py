@@ -57,8 +57,6 @@ class MassOperationMixin(models.AbstractModel):
             if not mixin.ref_ir_act_window_id:
                 mixin.ref_ir_act_window_id =\
                     action_obj.create(mixin._prepare_action())
-            # if not mixin.value_id:
-            #     mixin.value_id = values_obj.create(mixin._prepare_value())
 
     def disable_mass_operation(self):
         self.mapped('ref_ir_act_window_id').unlink()
