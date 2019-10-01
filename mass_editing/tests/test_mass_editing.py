@@ -17,6 +17,7 @@ class TestMassEditing(common.SavepointCase):
     def setUpClass(self):
         super().setUpClass()
         self.mass_editing_user = self.env.ref('mass_editing.mass_editing_user')
+        
         self.users = self.env['res.users'].search([])
         self.MassEditingWizard = self.env['mass.editing.wizard']
 
@@ -58,15 +59,12 @@ class TestMassEditing(common.SavepointCase):
     #     self._execute_mass_editing(self.mass_editing_user, self.users, {})
 
 
-    # def _apply_action(self, obj, vals, mass_editing):
-    #     """Create Wizard object to perform mass editing to
-    #     REMOVE field's value."""
-    #     ctx = {
-    #         'active_ids': obj.ids,
-    #         'mass_operation_mixin_name': 'mass.object',
-    #         'mass_operation_mixin_id': mass_editing.id,
-    #     }
-    #     return self.mass_wiz_obj.with_context(ctx).create(vals)
+    def _create_wizard_and_apply_values(self, mass_editing, items, vals):
+        return self.MassEditingWizard.with_context(
+            mass_operation_mixin_name='mass.object',
+            mass_operation_mixin_id=mass_editing.id,
+            active_ids=items.ids,
+        ).create(vals)
 
     def test_wiz_fields_view_get(self):
         """Test whether fields_view_get method returns arch.
@@ -86,13 +84,12 @@ class TestMassEditing(common.SavepointCase):
 
     def test_wiz_read_fields(self):
         """Test whether read method returns all fields or not."""
-        ctx = {
-            'mass_editing_object': self.mass.id,
-            'active_id': self.partner.id,
-            'active_ids': self.partner.ids,
-            'active_model': 'res.partner',
-        }
-        fields_view = self.mass_wiz_obj.with_context(ctx).fields_view_get()
+        fields_view = self.MassEditingWizard.with_context(
+            mass_operation_mixin_name='mass.object',
+            mass_operation_mixin_id=self.mass_editing_user.id,
+            active_ids=[],
+        ).fields_view_get()
+
         fields = list(fields_view['fields'].keys())
         # add a real field
         fields.append('display_name')
@@ -100,8 +97,9 @@ class TestMassEditing(common.SavepointCase):
             'selection__email': 'remove',
             'selection__phone': 'remove',
         }
-        mass_wiz_obj = self._apply_action(self.partner, vals, self.mass)
-        result = mass_wiz_obj.read(fields)[0]
+        mass_wizard = self._create_wizard_and_apply_values(
+            self.mass_editing_user, self.users, vals)
+        result = mass_wizard.read(fields)[0]
         self.assertTrue(all([field in result for field in fields]),
                         'Read must return all fields.')
 

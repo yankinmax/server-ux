@@ -106,9 +106,9 @@ class MassOperationWizardMixin(models.AbstractModel):
 
     @api.model
     def _get_remaining_items(self):
-        active_ids = self.env.context.get('active_ids')
+        active_ids = self.env.context.get('active_ids', [])
         mass_operation = self._get_mass_operation()
-        SrcModel = self.env[self._get_src_model().model]
+        SrcModel = self.env[mass_operation.model_id.model]
         if mass_operation.domain != '[]':
             domain = expression.AND([
                 safe_eval(mass_operation.domain),
