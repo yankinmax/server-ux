@@ -31,7 +31,7 @@ class TestMassEditing(common.SavepointCase):
         # cls.env = cls.env(context=dict(cls.env.context, tracking_disable=True))
         # model_obj = cls.env['ir.model']
         # cls.mass_wiz_obj = cls.env['mass.editing.wizard']
-        # cls.mass_object_model = cls.env['mass.object']
+        # cls.mass_editing_model = cls.env['mass.editing']
         # cls.res_partner_model = cls.env['res.partner']
         # cls.ir_translation_model = cls.env['ir.translation']
         # cls.lang_model = cls.env['res.lang']
@@ -80,7 +80,7 @@ class TestMassEditing(common.SavepointCase):
 
     def _create_wizard_and_apply_values(self, mass_editing, items, vals):
         return self.MassEditingWizard.with_context(
-            mass_operation_mixin_name='mass.object',
+            mass_operation_mixin_name='mass.editing',
             mass_operation_mixin_id=mass_editing.id,
             active_ids=items.ids,
         ).create(vals)
@@ -90,7 +90,7 @@ class TestMassEditing(common.SavepointCase):
         with dynamic fields.
         """
         result = self.MassEditingWizard.with_context(
-            mass_operation_mixin_name='mass.object',
+            mass_operation_mixin_name='mass.editing',
             mass_operation_mixin_id=self.mass_editing_user.id,
             active_ids=[],
         ).fields_view_get()
@@ -104,7 +104,7 @@ class TestMassEditing(common.SavepointCase):
     def test_wiz_read_fields(self):
         """Test whether read method returns all fields or not."""
         fields_view = self.MassEditingWizard.with_context(
-            mass_operation_mixin_name='mass.object',
+            mass_operation_mixin_name='mass.editing',
             mass_operation_mixin_id=self.mass_editing_user.id,
             active_ids=[],
         ).fields_view_get()
@@ -234,8 +234,8 @@ class TestMassEditing(common.SavepointCase):
     #     """Test if related actions are removed when mass editing
     #     record is unlinked."""
     #     mass_action_id = self.mass.ref_ir_act_window_id.id
-    #     mass_object_id = self.mass.id
-    #     mass_id = self.env['mass.object'].browse(mass_object_id)
+    #     mass_editing_id = self.mass.id
+    #     mass_id = self.env['mass.editing'].browse(mass_editing_id)
     #     mass_id.unlink()
     #     value_cnt = self.env['ir.actions.act_window'].search([
     #         ('id', '=', mass_action_id)], count=True)
@@ -278,7 +278,7 @@ class TestMassEditing(common.SavepointCase):
     # def _create_mass_editing(cls, model, fields, model_name):
     #     """Create a Mass Editing with Partner as model and
     #     email field of partner."""
-    #     mass = cls.mass_object_model.create({
+    #     mass = cls.mass_editing_model.create({
     #         'name': 'Mass Editing for {0}'.format(model_name),
     #         'action_name': 'Mass Edit',
     #         'model_id': model.id,

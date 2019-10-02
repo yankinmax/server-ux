@@ -6,10 +6,18 @@
 def migrate(cr, version):
     if not version:
         return
+    # First remove the obsolete constraint created by the existence of the
+    # remove M2M field 'field_ids' between mass.object and ir.model.fields
+    cr.execute("""
+        DELETE FROM ir_model_relation
+        WHERE name = 'mass_field_rel';
+        """)
+    # Rename table for consistency reason
     cr.execute("""
         ALTER TABLE mass_object
         RENAME TO mass_editing;
     """)
+    # Create and Compute new required field
     cr.execute("""
         ALTER TABLE mass_editing
         ADD COLUMN action_name varchar;

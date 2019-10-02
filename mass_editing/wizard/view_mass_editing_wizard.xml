@@ -12,10 +12,17 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         <field name="inherit_id" ref="mass_operation_abstract.view_mass_operation_wizard_mixin_form"/>
         <field name="mode">primary</field>
         <field name="arch" type="xml">
-            <xpath expr="//form" position="attributes">
-                <field name="string"/>
+            <xpath expr="//group[@name='custom_info']" position="inside">
+                <group name="group_field_list" colspan="4" col="6">
+                </group>
             </xpath>
         </field>
     </record>
 
 </odoo>
+
+<!--                 <group name="custom_info">
+                </group>
+            <xpath expr="//form" position="attributes">
+                <field name="string"/>
+            </xpath> -->

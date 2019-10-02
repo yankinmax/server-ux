@@ -43,16 +43,11 @@ class MassEditingWizard(models.TransientModel):
 
     @api.model
     def _insert_field_in_arch(self, main_xml_group, field):
-        xml_sub_group = etree.SubElement(main_xml_group, 'group', {
-            'colspan': '6',
-            'col': '6',
-        })
-
-        etree.SubElement(xml_sub_group, 'field', {
+        etree.SubElement(main_xml_group, 'field', {
             'name': "selection__" + field.name,
             'colspan': '2',
         })
-        etree.SubElement(xml_sub_group, 'field', {
+        etree.SubElement(main_xml_group, 'field', {
             'name': field.name,
             'nolabel': '1',
             'colspan': '4',
@@ -74,9 +69,9 @@ class MassEditingWizard(models.TransientModel):
 
         arch = etree.fromstring(result['arch'])
 
-        main_xml_group = arch.find('.//group[@name="custom_info"]')
+        main_xml_group = arch.find('.//group[@name="group_field_list"]')
 
-        for field in mass_editing.field_ids:
+        for field in mass_editing.mapped('line_ids.field_id'):
             # Field part
             field_info = fields_info[field.name]
             all_fields.update(self._prepare_fields(field, field_info))

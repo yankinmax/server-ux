@@ -6,31 +6,61 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 -->
 <odoo>
 
-    <record id="mass_editing_user" model="mass.object">
+    <record id="mass_editing_user" model="mass.editing">
         <field name="name">res.user - Mass Editing</field>
         <field name="action_name">Mass Edit</field>
         <field name="model_id" ref="base.model_res_users"/>
-        <field name="field_ids" eval="[
-            (4, ref('base.field_res_users__email')),
-            (4, ref('base.field_res_users__phone')),
-            (4, ref('base.field_res_users__category_id')),
-            (4, ref('base.field_res_users__comment')),
-            (4, ref('base.field_res_users__country_id')),
-            (4, ref('base.field_res_users__is_company')),
-            (4, ref('base.field_res_users__child_ids')),
-            (4, ref('base.field_res_users__title')),
-            (4, ref('base.field_res_users__company_type')),
-        ]"/>
     </record>
 
-    <record id="mass_editing_partner_title" model="mass.object">
+    <record id="mass_editing_user_line_1" model="mass.editing.line">
+        <field name="mass_editing_id" ref="mass_editing_user"/>
+        <field name="field_id"ref="base.field_res_users__email"/>
+    </record>
+    <record id="mass_editing_user_line_2" model="mass.editing.line">
+        <field name="mass_editing_id" ref="mass_editing_user"/>
+        <field name="field_id"ref="base.field_res_users__phone"/>
+    </record>
+    <record id="mass_editing_user_line_3" model="mass.editing.line">
+        <field name="mass_editing_id" ref="mass_editing_user"/>
+        <field name="field_id"ref="base.field_res_users__category_id"/>
+    </record>
+    <record id="mass_editing_user_line_4" model="mass.editing.line">
+        <field name="mass_editing_id" ref="mass_editing_user"/>
+        <field name="field_id"ref="base.field_res_users__comment"/>
+    </record>
+    <record id="mass_editing_user_line_5" model="mass.editing.line">
+        <field name="mass_editing_id" ref="mass_editing_user"/>
+        <field name="field_id"ref="base.field_res_users__country_id"/>
+    </record>
+    <record id="mass_editing_user_line_6" model="mass.editing.line">
+        <field name="mass_editing_id" ref="mass_editing_user"/>
+        <field name="field_id"ref="base.field_res_users__is_company"/>
+    </record>
+    <record id="mass_editing_user_line_7" model="mass.editing.line">
+        <field name="mass_editing_id" ref="mass_editing_user"/>
+        <field name="field_id"ref="base.field_res_users__child_ids"/>
+    </record>
+    <record id="mass_editing_user_line_8" model="mass.editing.line">
+        <field name="mass_editing_id" ref="mass_editing_user"/>
+        <field name="field_id"ref="base.field_res_users__title"/>
+    </record>
+    <record id="mass_editing_user_line_9" model="mass.editing.line">
+        <field name="mass_editing_id" ref="mass_editing_user"/>
+        <field name="field_id"ref="base.field_res_users__company_type"/>
+    </record>
+
+
+    <record id="mass_editing_partner_title" model="mass.editing">
         <field name="name">res.partner.title - Mass Editing</field>
         <field name="action_name">Mass Edit</field>
         <field name="model_id" ref="base.model_res_partner_title"/>
-        <field name="field_ids" eval="[
-            (4, ref('base.field_res_partner_title__abbreviation')),
-        ]"/>
     </record>
+
+    <record id="mass_editing_partner_title_line_1" model="mass.editing.line">
+        <field name="mass_editing_id" ref="mass_editing_partner_title"/>
+        <field name="field_id"ref="base.field_res_partner_title__abbreviation"/>
+    </record>
+
 
     <function model="mass.object" name="enable_mass_operation">
         <value eval="[ref('mass_editing_user'), ref('mass_editing_partner_title')]"/>
