@@ -98,13 +98,6 @@ class MassOperationWizardMixin(models.AbstractModel):
             ('id', '=', self.env.context.get('mass_operation_mixin_id', 0))])
 
     @api.model
-    def _get_src_model(self):
-        IrModel = self.env['ir.model']
-        models = IrModel.search([
-            ('model', '=', self.env.context.get('active_model', False))])
-        return models[0]
-
-    @api.model
     def _get_remaining_items(self):
         active_ids = self.env.context.get('active_ids', [])
         mass_operation = self._get_mass_operation()

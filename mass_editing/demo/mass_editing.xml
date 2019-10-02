@@ -23,8 +23,17 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
         ]"/>
     </record>
 
+    <record id="mass_editing_partner_title" model="mass.object">
+        <field name="name">res.partner.title - Mass Editing</field>
+        <field name="action_name">Mass Edit</field>
+        <field name="model_id" ref="base.model_res_partner_title"/>
+        <field name="field_ids" eval="[
+            (4, ref('base.field_res_partner_title__abbreviation')),
+        ]"/>
+    </record>
+
     <function model="mass.object" name="enable_mass_operation">
-        <value eval="[ref('mass_editing_user')]"/>
+        <value eval="[ref('mass_editing_user'), ref('mass_editing_partner_title')]"/>
     </function>
 
 </odoo>

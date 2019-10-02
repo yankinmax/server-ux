@@ -16,10 +16,16 @@ class TestMassEditing(common.SavepointCase):
     @classmethod
     def setUpClass(self):
         super().setUpClass()
-        self.mass_editing_user = self.env.ref('mass_editing.mass_editing_user')
-        
-        self.users = self.env['res.users'].search([])
+
         self.MassEditingWizard = self.env['mass.editing.wizard']
+        self.ResPartnerTitle = self.env['res.partner.title']
+
+        self.mass_editing_user = self.env.ref('mass_editing.mass_editing_user')
+        self.mass_editing_partner_title = self.env.ref(
+            'mass_editing.mass_editing_partner_title')
+
+        self.users = self.env['res.users'].search([])
+        self.partner_title = self._create_partner_title()
 
         # # Model connections
         # cls.env = cls.env(context=dict(cls.env.context, tracking_disable=True))
@@ -43,8 +49,6 @@ class TestMassEditing(common.SavepointCase):
         #     cls.partner_model, cls.fields_model, 'Partner')
         # cls.copy_mass = cls.mass.copy()
         # cls.user = cls._create_user()
-        # cls.res_partner_title_model = cls.env['res.partner.title']
-        # cls.partner_title = cls._create_partner_title()
 
         # cls.partner_title_model = model_obj.search(
         #     [('model', '=', 'res.partner.title')])
@@ -58,6 +62,21 @@ class TestMassEditing(common.SavepointCase):
     # def _execute_mass_editing(self, mass_editing, items, values):
     #     self._execute_mass_editing(self.mass_editing_user, self.users, {})
 
+    def _create_partner_title(self):
+        """Create a Partner Title."""
+        # Loads German to work with translations
+        self.lang_model.load_lang('de_DE')
+        # Creating the title in English
+        partner_title = self.ResPartnerTitle.create({
+            'name': 'Ambassador',
+            'shortcut': 'Amb.',
+        })
+        # Adding translated terms
+        ctx = {'lang': 'de_DE'}
+        partner_title.with_context(ctx).write({
+            'name': 'Botschafter',
+            'shortcut': 'Bots.'})
+        return partner_title
 
     def _create_wizard_and_apply_values(self, mass_editing, items, vals):
         return self.MassEditingWizard.with_context(
@@ -103,30 +122,32 @@ class TestMassEditing(common.SavepointCase):
         self.assertTrue(all([field in result for field in fields]),
                         'Read must return all fields.')
 
-    # def test_mass_edit_partner_title(self):
-    #     """Test Case for MASS EDITING which will check if translation
-    #     was loaded for new partner title, and if they are removed
-    #     as well as the value for the abbreviation for the partner title."""
-    #     search_domain = [('res_id', '=', self.partner_title.id),
-    #                      ('type', '=', 'model'),
-    #                      ('name', '=', 'res.partner.title,shortcut'),
-    #                      ('lang', '=', 'de_DE')]
-    #     translation_ids = self.ir_translation_model.search(search_domain)
-    #     self.assertEqual(len(translation_ids), 1,
-    #                      'Translation for Partner Title\'s Abbreviation '
-    #                      'was not loaded properly.')
-    #     # Removing partner title with mass edit action
-    #     vals = {
-    #         'selection__shortcut': 'remove',
-    #     }
-    #     self._apply_action(self.partner_title, vals, self.mass_partner_title)
-    #     self.assertEqual(self.partner_title.shortcut, False,
-    #                      'Partner Title\'s Abbreviation should be removed.')
-    #     # Checking if translations were also removed
-    #     translation_ids = self.ir_translation_model.search(search_domain)
-    #     self.assertEqual(len(translation_ids), 0,
-    #                      'Translation for Partner Title\'s Abbreviation '
-    #                      'was not removed properly.')
+    def test_mass_edit_partner_title(self):
+        """Test Case for MASS EDITING which will check if translation
+        was loaded for new partner title, and if they are removed
+        as well as the value for the abbreviation for the partner title."""
+        search_domain = [('res_id', '=', self.partner_title.id),
+                         ('type', '=', 'model'),
+                         ('name', '=', 'res.partner.title,shortcut'),
+                         ('lang', '=', 'de_DE')]
+        translation_ids = self.ir_translation_model.search(search_domain)
+        self.assertEqual(len(translation_ids), 1,
+                         'Translation for Partner Title\'s Abbreviation '
+                         'was not loaded properly.')
+        # Removing partner title with mass edit action
+        vals = {
+            'selection__shortcut': 'remove',
+        }
+        mass_wizard = self._create_wizard_and_apply_values(
+            self.mass_editing_partner_title, self.partner_title, vals)
+
+        self.assertEqual(self.partner_title.shortcut, False,
+                         'Partner Title\'s Abbreviation should be removed.')
+        # Checking if translations were also removed
+        translation_ids = self.ir_translation_model.search(search_domain)
+        self.assertEqual(len(translation_ids), 0,
+                         'Translation for Partner Title\'s Abbreviation '
+                         'was not removed properly.')
 
     # def test_mass_edit_email(self):
     #     """Test Case for MASS EDITING which will remove and after add
@@ -233,8 +254,6 @@ class TestMassEditing(common.SavepointCase):
     #                     "Sidebar action must be removed when mass"
     #                     " editing module is uninstalled.")
 
-
-
     # @classmethod
     # def _create_partner(cls):
     #     """Create a Partner."""
@@ -246,23 +265,6 @@ class TestMassEditing(common.SavepointCase):
     #         'category_id': [(6, 0, categ_ids)],
     #         'notify_email': 'always'
     #     })
-
-    # @classmethod
-    # def _create_partner_title(cls):
-    #     """Create a Partner Title."""
-    #     # Loads German to work with translations
-    #     cls.lang_model.load_lang('de_DE')
-    #     # Creating the title in English
-    #     partner_title = cls.res_partner_title_model.create({
-    #         'name': 'Ambassador',
-    #         'shortcut': 'Amb.',
-    #     })
-    #     # Adding translated terms
-    #     ctx = {'lang': 'de_DE'}
-    #     partner_title.with_context(ctx).write({
-    #         'name': 'Botschafter',
-    #         'shortcut': 'Bots.'})
-    #     return partner_title
 
     # @classmethod
     # def _create_user(cls):
