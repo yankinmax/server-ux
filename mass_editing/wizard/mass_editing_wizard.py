@@ -12,7 +12,7 @@ class MassEditingWizard(models.TransientModel):
     _description = "Wizard for mass edition"
 
     @api.model
-    def _prepare_fields(self, field, field_info):
+    def _prepare_fields(self, line, field, field_info):
         result = {}
 
         # Add "selection field (set / add / remove / remove_m2m)
@@ -42,16 +42,19 @@ class MassEditingWizard(models.TransientModel):
         return result
 
     @api.model
-    def _insert_field_in_arch(self, main_xml_group, field):
+    def _insert_field_in_arch(self, line, field, main_xml_group):
         etree.SubElement(main_xml_group, 'field', {
             'name': "selection__" + field.name,
             'colspan': '2',
         })
-        etree.SubElement(main_xml_group, 'field', {
+        field_vals = {
             'name': field.name,
             'nolabel': '1',
             'colspan': '4',
-        })
+        }
+        if line.widget_option:
+            field_vals['widget'] = line.widget_option
+        etree.SubElement(main_xml_group, 'field', field_vals)
 
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False,
@@ -71,13 +74,14 @@ class MassEditingWizard(models.TransientModel):
 
         main_xml_group = arch.find('.//group[@name="group_field_list"]')
 
-        for field in mass_editing.mapped('line_ids.field_id'):
+        for line in mass_editing.mapped('line_ids'):
             # Field part
+            field = line.field_id
             field_info = fields_info[field.name]
-            all_fields.update(self._prepare_fields(field, field_info))
+            all_fields.update(self._prepare_fields(line, field, field_info))
 
             # XML Part
-            self._insert_field_in_arch(main_xml_group, field)
+            self._insert_field_in_arch(line, field, main_xml_group)
 
         result['arch'] = etree.tostring(arch, encoding='unicode')
         result['fields'] = all_fields

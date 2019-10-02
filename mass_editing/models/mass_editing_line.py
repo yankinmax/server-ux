@@ -4,8 +4,22 @@
 from odoo import api, fields, models
 
 
+class ResUsers(models.Model):
+    _inherit = "res.users"
+
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False,
+                        submenu=False):
+        result = super().fields_view_get(
+            view_id=view_id, view_type=view_type, toolbar=toolbar,
+            submenu=submenu)
+        print(result)
+        return result
+
+
 class MassEditingLine(models.Model):
     _name = "mass.editing.line"
+    _order = "sequence,field_id"
     _description = "Mass Editing Line"
 
     sequence = fields.Integer()
@@ -33,10 +47,12 @@ class MassEditingLine(models.Model):
         " to display the field in the wizard. Example :\n"
         "'many2many_tags', 'selection'")
 
+    @api.depends('field_id')
     def _compute_widget_option(self):
         # this function propose selection
         for line in self.filtered('field_id'):
             field = line.field_id
+            line.widget_option = False
             if field.ttype == 'many2one':
                 line.widget_option = 'selection'
             elif field.ttype == 'many2many':
