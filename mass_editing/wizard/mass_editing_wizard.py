@@ -3,7 +3,7 @@
 
 from lxml import etree
 
-from odoo import api, models
+from odoo import _, api, models
 
 
 class MassEditingWizard(models.TransientModel):
@@ -18,14 +18,14 @@ class MassEditingWizard(models.TransientModel):
         # Add "selection field (set / add / remove / remove_m2m)
         if field.ttype == "many2many":
             selection = [
-                ('set', 'Set'),
-                ('remove_m2m', 'Remove'),
-                ('add', 'Add'),
+                ('set', _('Set')),
+                ('remove_m2m', _('Remove')),
+                ('add', _('Add')),
             ]
         else:
             selection = [
-                ('set', 'Set'),
-                ('remove', 'Remove'),
+                ('set', _('Set')),
+                ('remove', _('Remove')),
             ]
         result["selection__" + field.name] = {
             'type': 'selection',

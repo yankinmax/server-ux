@@ -26,3 +26,5 @@ def migrate(cr, version):
         UPDATE mass_editing
         SET action_name = name;
     """)
+    cr.execute("""
+        alter sequence mass_object_id_seq rename to mass_editing_id_seq;""")
