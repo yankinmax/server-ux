@@ -9,8 +9,8 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     technical_features = fields.Boolean(
-        compute='_compute_get_technical_features',
-        inverse='_inverse_set_technical_features')
+        compute='_compute_technical_features',
+        inverse='_inverse_technical_features')
     show_technical_features = fields.Boolean(
         string='Show field Technical Features',
         compute='_compute_get_show_technical_features',
@@ -26,7 +26,7 @@ class ResUsers(models.Model):
             user.show_technical_features = user in users
 
     @api.depends('groups_id')
-    def _compute_get_technical_features(self):
+    def _compute_technical_features(self):
         """ Map user membership to boolean field value """
         users = self.env.ref(
             'base_technical_features.group_technical_features').users
