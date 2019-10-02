@@ -33,7 +33,7 @@ class ResUsers(models.Model):
         for user in self:
             user.technical_features = user in users
 
-    def _inverse_set_technical_features(self):
+    def _inverse_technical_features(self):
         """ Map boolean field value to group membership, but checking
         access """
         group = self.env.ref(
