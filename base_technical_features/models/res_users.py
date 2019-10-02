@@ -18,7 +18,7 @@ class ResUsers(models.Model):
               'preferences.'))
 
     @api.depends('groups_id')
-    def _compute_get_show_technical_features(self):
+    def _compute_show_technical_features(self):
         """ Only display the technical features checkbox in the user
         preferences if the user has access to them """
         users = self.env.ref('base.group_no_one').users
