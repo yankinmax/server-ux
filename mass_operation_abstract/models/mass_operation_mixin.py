@@ -59,10 +59,12 @@ class MassOperationMixin(models.AbstractModel):
                     action_obj.create(mixin._prepare_action())
 
     def disable_mass_operation(self):
+        print("DISABLE_MASS_OPERATION")
         self.mapped('ref_ir_act_window_id').unlink()
 
     # Overload Section
     def unlink(self):
+        print("UNLINK")
         self.disable_mass_operation()
         return super().unlink()
 
@@ -70,13 +72,6 @@ class MassOperationMixin(models.AbstractModel):
         default = default or {}
         default.update({'name': _('%s (copy)') % self.name})
         return super().copy(default=default)
-
-    # @api.returns('self', lambda value: value.id)
-    # def copy(self, default=None):
-    #     if default is None:
-    #         default = {}
-    #     default.update({'name': _("%s (copy)" % self.name), 'field_ids': []})
-    #     return super(MassObject, self).copy(default)
 
     # Private Section
     def _prepare_action(self):

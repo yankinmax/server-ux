@@ -13,59 +13,26 @@ class TestMassEditing(common.SavepointCase):
     at_install = False
     post_install = True
 
-    @classmethod
-    def setUpClass(self):
-        super().setUpClass()
+    def setUp(self):
+        super().setUp()
 
         self.MassEditingWizard = self.env['mass.editing.wizard']
         self.ResPartnerTitle = self.env['res.partner.title']
+        self.ResLang = self.env['res.lang']
+        self.IrTranslation = self.env['ir.translation']
 
         self.mass_editing_user = self.env.ref('mass_editing.mass_editing_user')
         self.mass_editing_partner_title = self.env.ref(
             'mass_editing.mass_editing_partner_title')
 
         self.users = self.env['res.users'].search([])
+        self.user = self.env.ref('base.user_demo')
         self.partner_title = self._create_partner_title()
-
-        # # Model connections
-        # cls.env = cls.env(context=dict(cls.env.context, tracking_disable=True))
-        # model_obj = cls.env['ir.model']
-        # cls.mass_wiz_obj = cls.env['mass.editing.wizard']
-        # cls.mass_editing_model = cls.env['mass.editing']
-        # cls.res_partner_model = cls.env['res.partner']
-        # cls.ir_translation_model = cls.env['ir.translation']
-        # cls.lang_model = cls.env['res.lang']
-        # # Shared data for test methods
-        # cls.partner = cls._create_partner()
-        # cls.partner_model = model_obj.\
-        #     search([('model', '=', 'res.partner')])
-        # cls.user_model = model_obj.search([('model', '=', 'res.users')])
-        # cls.fields_model = cls.env['ir.model.fields'].\
-        #     search([('model_id', '=', cls.partner_model.id),
-        #             ('name', 'in', ['email', 'phone', 'category_id', 'comment',
-        #                             'country_id', 'customer', 'child_ids',
-        #                             'title', 'company_type'])])
-        # cls.mass = cls._create_mass_editing(
-        #     cls.partner_model, cls.fields_model, 'Partner')
-        # cls.copy_mass = cls.mass.copy()
-        # cls.user = cls._create_user()
-
-        # cls.partner_title_model = model_obj.search(
-        #     [('model', '=', 'res.partner.title')])
-        # cls.fields_partner_title_model = cls.env['ir.model.fields'].search(
-        #     [('model_id', '=', cls.partner_title_model.id),
-        #      ('name', 'in', ['abbreviation'])])
-        # cls.mass_partner_title = cls._create_mass_editing(
-        #     cls.partner_title_model, cls.fields_partner_title_model,
-        #     'Partner Title')
-
-    # def _execute_mass_editing(self, mass_editing, items, values):
-    #     self._execute_mass_editing(self.mass_editing_user, self.users, {})
 
     def _create_partner_title(self):
         """Create a Partner Title."""
         # Loads German to work with translations
-        self.lang_model.load_lang('de_DE')
+        self.ResLang.load_lang('de_DE')
         # Creating the title in English
         partner_title = self.ResPartnerTitle.create({
             'name': 'Ambassador',
@@ -78,96 +45,100 @@ class TestMassEditing(common.SavepointCase):
             'shortcut': 'Bots.'})
         return partner_title
 
-    def _create_wizard_and_apply_values(self, mass_editing, items, vals):
-        return self.MassEditingWizard.with_context(
-            mass_operation_mixin_name='mass.editing',
-            mass_operation_mixin_id=mass_editing.id,
-            active_ids=items.ids,
-        ).create(vals)
+    # def _create_wizard_and_apply_values(self, mass_editing, items, vals):
+    #     return self.MassEditingWizard.with_context(
+    #         mass_operation_mixin_name='mass.editing',
+    #         mass_operation_mixin_id=mass_editing.id,
+    #         active_ids=items.ids,
+    #     ).create(vals)
 
-    def test_wiz_fields_view_get(self):
-        """Test whether fields_view_get method returns arch.
-        with dynamic fields.
-        """
-        result = self.MassEditingWizard.with_context(
-            mass_operation_mixin_name='mass.editing',
-            mass_operation_mixin_id=self.mass_editing_user.id,
-            active_ids=[],
-        ).fields_view_get()
+    # def test_wiz_fields_view_get(self):
+    #     """Test whether fields_view_get method returns arch.
+    #     with dynamic fields.
+    #     """
+    #     result = self.MassEditingWizard.with_context(
+    #         mass_operation_mixin_name='mass.editing',
+    #         mass_operation_mixin_id=self.mass_editing_user.id,
+    #         active_ids=[],
+    #     ).fields_view_get()
 
-        arch = result.get('arch', "")
-        self.assertTrue(
-            "selection__email" in arch,
-            "Fields view get must return architecture with fields"
-            "created dynamicaly")
+    #     arch = result.get('arch', "")
+    #     self.assertTrue(
+    #         "selection__email" in arch,
+    #         "Fields view get must return architecture with fields"
+    #         "created dynamicaly")
 
-    def test_wiz_read_fields(self):
-        """Test whether read method returns all fields or not."""
-        fields_view = self.MassEditingWizard.with_context(
-            mass_operation_mixin_name='mass.editing',
-            mass_operation_mixin_id=self.mass_editing_user.id,
-            active_ids=[],
-        ).fields_view_get()
+    # def test_wiz_read_fields(self):
+    #     """Test whether read method returns all fields or not."""
+    #     fields_view = self.MassEditingWizard.with_context(
+    #         mass_operation_mixin_name='mass.editing',
+    #         mass_operation_mixin_id=self.mass_editing_user.id,
+    #         active_ids=[],
+    #     ).fields_view_get()
 
-        fields = list(fields_view['fields'].keys())
-        # add a real field
-        fields.append('display_name')
-        vals = {
-            'selection__email': 'remove',
-            'selection__phone': 'remove',
-        }
-        mass_wizard = self._create_wizard_and_apply_values(
-            self.mass_editing_user, self.users, vals)
-        result = mass_wizard.read(fields)[0]
-        self.assertTrue(all([field in result for field in fields]),
-                        'Read must return all fields.')
-
-    def test_mass_edit_partner_title(self):
-        """Test Case for MASS EDITING which will check if translation
-        was loaded for new partner title, and if they are removed
-        as well as the value for the abbreviation for the partner title."""
-        search_domain = [('res_id', '=', self.partner_title.id),
-                         ('type', '=', 'model'),
-                         ('name', '=', 'res.partner.title,shortcut'),
-                         ('lang', '=', 'de_DE')]
-        translation_ids = self.ir_translation_model.search(search_domain)
-        self.assertEqual(len(translation_ids), 1,
-                         'Translation for Partner Title\'s Abbreviation '
-                         'was not loaded properly.')
-        # Removing partner title with mass edit action
-        vals = {
-            'selection__shortcut': 'remove',
-        }
-        mass_wizard = self._create_wizard_and_apply_values(
-            self.mass_editing_partner_title, self.partner_title, vals)
-
-        self.assertEqual(self.partner_title.shortcut, False,
-                         'Partner Title\'s Abbreviation should be removed.')
-        # Checking if translations were also removed
-        translation_ids = self.ir_translation_model.search(search_domain)
-        self.assertEqual(len(translation_ids), 0,
-                         'Translation for Partner Title\'s Abbreviation '
-                         'was not removed properly.')
-
-    # def test_mass_edit_email(self):
-    #     """Test Case for MASS EDITING which will remove and after add
-    #     Partner's email and will assert the same."""
-    #     # Remove email address
+    #     fields = list(fields_view['fields'].keys())
+    #     # add a real field
+    #     fields.append('display_name')
     #     vals = {
     #         'selection__email': 'remove',
     #         'selection__phone': 'remove',
     #     }
-    #     self._apply_action(self.partner, vals, self.mass)
-    #     self.assertEqual(self.partner.email, False,
-    #                      'Partner\'s Email should be removed.')
+    #     mass_wizard = self._create_wizard_and_apply_values(
+    #         self.mass_editing_user, self.users, vals)
+    #     result = mass_wizard.read(fields)[0]
+    #     self.assertTrue(all([field in result for field in fields]),
+    #                     'Read must return all fields.')
+
+    # def test_mass_edit_partner_title(self):
+    #     """Test Case for MASS EDITING which will check if translation
+    #     was loaded for new partner title, and if they are removed
+    #     as well as the value for the abbreviation for the partner title."""
+    #     search_domain = [('res_id', '=', self.partner_title.id),
+    #                      ('type', '=', 'model'),
+    #                      ('name', '=', 'res.partner.title,shortcut'),
+    #                      ('lang', '=', 'de_DE')]
+    #     translation_ids = self.IrTranslation.search(search_domain)
+    #     self.assertEqual(len(translation_ids), 1,
+    #                      'Translation for Partner Title\'s Abbreviation '
+    #                      'was not loaded properly.')
+    #     # Removing partner title with mass edit action
+    #     vals = {
+    #         'selection__shortcut': 'remove',
+    #     }
+    #     self._create_wizard_and_apply_values(
+    #         self.mass_editing_partner_title, self.partner_title, vals)
+
+    #     self.assertEqual(self.partner_title.shortcut, False,
+    #                      'Partner Title\'s Abbreviation should be removed.')
+    #     # Checking if translations were also removed
+    #     translation_ids = self.IrTranslation.search(search_domain)
+    #     self.assertEqual(len(translation_ids), 0,
+    #                      'Translation for Partner Title\'s Abbreviation '
+    #                      'was not removed properly.')
+
+    # def test_mass_edit_email(self):
+    #     """Test Case for MASS EDITING which will remove and after add
+    #     User's email and will assert the same."""
+    #     # Remove email and phone
+    #     vals = {
+    #         'selection__email': 'remove',
+    #         'selection__phone': 'remove',
+    #     }
+    #     self._create_wizard_and_apply_values(
+    #         self.mass_editing_user, self.user, vals)
+
+    #     self.assertEqual(self.user.email, False,
+    #                      'User\'s Email should be removed.')
+
     #     # Set email address
     #     vals = {
     #         'selection__email': 'set',
     #         'email': 'sample@mycompany.com',
     #     }
-    #     self._apply_action(self.partner, vals, self.mass)
-    #     self.assertNotEqual(self.partner.email, False,
-    #                         'Partner\'s Email should be set.')
+    #     self._create_wizard_and_apply_values(
+    #         self.mass_editing_user, self.user, vals)
+    #     self.assertNotEqual(self.user.email, False,
+    #                         'User\'s Email should be set.')
 
     # def test_mass_edit_m2m_categ(self):
     #     """Test Case for MASS EDITING which will remove and add
@@ -176,9 +147,10 @@ class TestMassEditing(common.SavepointCase):
     #     vals = {
     #         'selection__category_id': 'remove_m2m',
     #     }
-    #     self._apply_action(self.partner, vals, self.mass)
-    #     self.assertNotEqual(self.partner.category_id, False,
-    #                         'Partner\'s category should be removed.')
+    #     self._create_wizard_and_apply_values(
+    #         self.mass_editing_user, self.user, vals)
+    #     self.assertNotEqual(self.user.category_id, False,
+    #                         'User\'s category should be removed.')
     #     # Add m2m categories
     #     dist_categ_id = self.env.ref('base.res_partner_category_14').id
     #     vend_categ_id = self.env.ref('base.res_partner_category_0').id
@@ -186,8 +158,9 @@ class TestMassEditing(common.SavepointCase):
     #         'selection__category_id': 'add',
     #         'category_id': [[6, 0, [dist_categ_id, vend_categ_id]]],
     #     }
-    #     wiz_action = self._apply_action(self.partner, vals, self.mass)
-    #     self.assertTrue(all(item in self.partner.category_id.ids
+    #     self._create_wizard_and_apply_values(
+    #         self.mass_editing_user, self.user, vals)
+    #     self.assertTrue(all(item in self.user.category_id.ids
     #                         for item in [dist_categ_id, vend_categ_id]),
     #                     'Partner\'s category should be added.')
     #     # Remove one m2m category
@@ -195,94 +168,41 @@ class TestMassEditing(common.SavepointCase):
     #         'selection__category_id': 'remove_m2m',
     #         'category_id': [[6, 0, [vend_categ_id]]],
     #     }
-    #     wiz_action = self._apply_action(self.partner, vals, self.mass)
-    #     self.assertTrue([dist_categ_id] == self.partner.category_id.ids,
-    #                     'Partner\'s category should be removed.')
-    #     # Check window close action
-    #     res = wiz_action.action_apply()
-    #     self.assertTrue(res['type'] == 'ir.actions.act_window_close',
-    #                     'IR Action must be window close.')
-
-    # def test_mass_edit_copy(self):
-    #     """Test if fields one2many field gets blank when mass editing record
-    #     is copied.
-    #     """
-    #     self.assertEqual(self.copy_mass.field_ids.ids, [],
-    #                      'Fields must be blank.')
+    #     self._create_wizard_and_apply_values(
+    #         self.mass_editing_user, self.user, vals)
+    #     self.assertTrue([dist_categ_id] == self.user.category_id.ids,
+    #                     'User\'s category should be removed.')
 
     # def test_sidebar_action(self):
     #     """Test if Sidebar Action is added / removed to / from give object."""
-    #     action = self.mass.ref_ir_act_window_id\
-    #         and self.mass.ref_ir_act_window_id.binding_model_id
-    #     self.assertTrue(action, 'Sidebar action must be exists.')
+
+    #     self.assertTrue(
+    #         self.mass_editing_user.ref_ir_act_window_id,
+    #         'Sidebar action must exist.')
+
     #     # Remove the sidebar actions
-    #     self.mass.unlink_action()
-    #     action = self.mass.ref_ir_act_window_id
-    #     self.assertFalse(action, 'Sidebar action must be removed.')
+    #     self.mass_editing_user.disable_mass_operation()
+    #     self.assertFalse(
+    #         self.mass_editing_user.ref_ir_act_window_id,
+    #         'Sidebar action must be removed.')
 
-    # def test_special_search(self):
-    #     """Test for the special search."""
-    #     fields = self.env['ir.model.fields'].search(
-    #         [('ttype', 'not in', ['reference', 'function']),
-    #          ('mass_editing_domain', 'in', '[1,2]')]
-    #     )
-    #     self.assertTrue(len(fields),
-    #                     "Special domain 'mass_editing_domain'"
-    #                     " should find fields in different models.")
+    def test_unlink_mass(self):
+        """Test if related actions are removed when mass editing
+        record is unlinked."""
+        mass_action_id = self.mass_editing_user.ref_ir_act_window_id.id
+        self.mass_editing_user.unlink()
+        count = len(self.env['ir.actions.act_window'].browse(mass_action_id))
 
-    # def test_unlink_mass(self):
-    #     """Test if related actions are removed when mass editing
-    #     record is unlinked."""
-    #     mass_action_id = self.mass.ref_ir_act_window_id.id
-    #     mass_editing_id = self.mass.id
-    #     mass_id = self.env['mass.editing'].browse(mass_editing_id)
-    #     mass_id.unlink()
-    #     value_cnt = self.env['ir.actions.act_window'].search([
-    #         ('id', '=', mass_action_id)], count=True)
-    #     self.assertTrue(value_cnt == 0,
-    #                     "Sidebar action must be removed when mass"
-    #                     " editing is unlinked.")
+        self.assertEqual(count, 0,
+                         "Sidebar action must be removed when mass"
+                         " editing is unlinked.")
 
     # def test_uninstall_hook(self):
     #     """Test if related actions are removed when mass editing
     #     record is uninstalled."""
     #     uninstall_hook(self.cr, registry)
-    #     mass_action_id = self.mass.ref_ir_act_window_id.id
-    #     value_cnt = len(self.env['ir.actions.act_window'].browse(
-    #                     mass_action_id))
-    #     self.assertTrue(value_cnt == 0,
+    #     mass_action_id = self.mass_editing_user.ref_ir_act_window_id.id
+    #     count = len(self.env['ir.actions.act_window'].browse(mass_action_id))
+    #     self.assertTrue(count == 0,
     #                     "Sidebar action must be removed when mass"
     #                     " editing module is uninstalled.")
-
-    # @classmethod
-    # def _create_partner(cls):
-    #     """Create a Partner."""
-    #     categ_ids = cls.env['res.partner.category'].search([]).ids
-    #     return cls.res_partner_model.create({
-    #         'name': 'Test Partner',
-    #         'email': 'example@yourcompany.com',
-    #         'phone': 123456,
-    #         'category_id': [(6, 0, categ_ids)],
-    #         'notify_email': 'always'
-    #     })
-
-    # @classmethod
-    # def _create_user(cls):
-    #     return cls.env['res.users'].create({
-    #         'name': 'Test User',
-    #         'login': 'test_login',
-    #         'email': 'test@test.com',
-    #     })
-
-    # @classmethod
-    # def _create_mass_editing(cls, model, fields, model_name):
-    #     """Create a Mass Editing with Partner as model and
-    #     email field of partner."""
-    #     mass = cls.mass_editing_model.create({
-    #         'name': 'Mass Editing for {0}'.format(model_name),
-    #         'action_name': 'Mass Edit',
-    #         'model_id': model.id,
-    #         'field_ids': [(6, 0, fields.ids)]
-    #     })
-    #     mass.enable_mass_operation()
-    #     return mass
