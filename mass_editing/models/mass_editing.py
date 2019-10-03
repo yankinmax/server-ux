@@ -7,7 +7,7 @@ from odoo import fields, models
 class MassEditing(models.Model):
     _name = "mass.editing"
     _inherit = "mass.operation.mixin"
-    _description = "Mass Editing Object"
+    _description = "Mass Editing"
 
     _wizard_model_name = 'mass.editing.wizard'
 

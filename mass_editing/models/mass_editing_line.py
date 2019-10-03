@@ -4,19 +4,6 @@
 from odoo import api, fields, models
 
 
-class ResUsers(models.Model):
-    _inherit = "res.users"
-
-    @api.model
-    def fields_view_get(self, view_id=None, view_type='form', toolbar=False,
-                        submenu=False):
-        result = super().fields_view_get(
-            view_id=view_id, view_type=view_type, toolbar=toolbar,
-            submenu=submenu)
-        print(result)
-        return result
-
-
 class MassEditingLine(models.Model):
     _name = "mass.editing.line"
     _order = "sequence,field_id"
