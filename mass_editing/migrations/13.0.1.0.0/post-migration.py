@@ -6,6 +6,7 @@
 def migrate(cr, version):
     if not version:
         return
+
     # Rename table for consistency reason
     cr.execute("""
         INSERT INTO mass_editing_line (mass_editing_id, field_id)

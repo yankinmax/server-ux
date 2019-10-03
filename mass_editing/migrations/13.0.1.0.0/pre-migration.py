@@ -6,6 +6,7 @@
 def migrate(cr, version):
     if not version:
         return
+
     # First remove the obsolete constraint created by the existence of the
     # remove M2M field 'field_ids' between mass.object and ir.model.fields
     cr.execute("""

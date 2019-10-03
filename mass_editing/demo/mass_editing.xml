@@ -38,7 +38,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
     </record>
     <record id="mass_editing_user_line_7" model="mass.editing.line">
         <field name="mass_editing_id" ref="mass_editing_user"/>
-        <field name="field_id" ref="base.field_res_users__child_ids"/>
+        <field name="field_id" ref="base.field_res_users__lang"/>
     </record>
     <record id="mass_editing_user_line_8" model="mass.editing.line">
         <field name="mass_editing_id" ref="mass_editing_user"/>
