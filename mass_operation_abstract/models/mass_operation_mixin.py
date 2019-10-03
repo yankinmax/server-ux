@@ -59,12 +59,10 @@ class MassOperationMixin(models.AbstractModel):
                     action_obj.create(mixin._prepare_action())
 
     def disable_mass_operation(self):
-        print("DISABLE_MASS_OPERATION")
         self.mapped('ref_ir_act_window_id').unlink()
 
     # Overload Section
     def unlink(self):
-        print("UNLINK")
         self.disable_mass_operation()
         return super().unlink()
 
