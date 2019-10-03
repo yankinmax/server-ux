@@ -36,7 +36,7 @@ class MassEditingLine(models.Model):
 
     @api.depends('field_id')
     def _compute_widget_option(self):
-        # this function propose selection
+        # this function propose selection, depending on the field
         for line in self.filtered('field_id'):
             field = line.field_id
             line.widget_option = False

@@ -20,9 +20,3 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
     </record>
 
 </odoo>
-
-<!--                 <group name="custom_info">
-                </group>
-            <xpath expr="//form" position="attributes">
-                <field name="string"/>
-            </xpath> -->
