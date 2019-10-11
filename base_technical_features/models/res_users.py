@@ -49,7 +49,7 @@ class ResUsers(models.Model):
             self.sudo().write({'groups_id': [(3, group.id)]})
 
     def __init__(self, pool, cr):
-        super(ResUsers, self).__init__(pool, cr)
+        super().__init__(pool, cr)
         self.SELF_READABLE_FIELDS += [
             'technical_features', 'show_technical_features']
         self.SELF_WRITEABLE_FIELDS.append('technical_features')
