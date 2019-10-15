@@ -13,7 +13,7 @@ class ResUsers(models.Model):
         inverse='_inverse_technical_features')
     show_technical_features = fields.Boolean(
         string='Show field Technical Features',
-        compute='_compute_get_show_technical_features',
+        compute='_compute_show_technical_features',
         help=('Whether to display the technical features field in the user '
               'preferences.'))
 
