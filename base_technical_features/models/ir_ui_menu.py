@@ -4,7 +4,7 @@ from odoo import api, models
 
 
 class IrUiMenu(models.Model):
-    _inherit = 'ir.ui.menu'
+    _inherit = "ir.ui.menu"
 
     @api.model
     def _visible_menu_ids(self, debug=False):
@@ -12,5 +12,6 @@ class IrUiMenu(models.Model):
         user's groups """
         if not debug:
             debug = self.env.user.has_group(
-                'base_technical_features.group_technical_features')
+                "base_technical_features.group_technical_features"
+            )
         return super()._visible_menu_ids(debug=debug)
