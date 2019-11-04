@@ -42,7 +42,7 @@ class ResUsers(models.Model):
         for user in self:
             if self.env.ref("base.group_no_one") not in user.groups_id:
                 raise AccessError(
-                    _("The user does not have access to technical " "features.")
+                    _("The user does not have access to technical features.")
                 )
         if user.technical_features:
             self.sudo().write({"groups_id": [(4, group.id)]})
