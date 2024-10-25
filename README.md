@@ -21,6 +21,7 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
+[base_technical_features](base_technical_features/) | 18.0.1.0.0 |  | Access to technical features without activating debug mode
 [developer_menu](developer_menu/) | 18.0.1.0.0 | [![bealdav](https://github.com/bealdav.png?size=30px)](https://github.com/bealdav) | Menu Shortcut for developer usage
 
 [//]: # (end addons)
